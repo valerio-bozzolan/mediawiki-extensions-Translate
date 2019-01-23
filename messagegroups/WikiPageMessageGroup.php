@@ -159,12 +159,27 @@ class WikiPageMessageGroup extends WikiMessageGroup implements IDBAccessObject {
 		return new TranslatablePageInsertablesSuggester();
 	}
 
+	/**
+	 * Get the description used in [[Special:Translate]] introduction
+	 *
+	 * @param object $context
+	 * @return string
+	 */
 	public function getDescription( IContextSource $context = null ) {
 		$title = $this->getTitle()->getPrefixedText();
 		$target = ":$title";
 		$pageLanguageCode = $this->getSourceLanguage();
 		$inLanguageCode = $context ? $context->getLanguage()->getCode() : null;
 		$languageName = Language::fetchLanguageName( $pageLanguageCode, $inLanguageCode );
+
+		// title suffixed with the selected language
+		$currentTitle = "$title";
+		if( $context ) {
+			$lang = $context->getRequest()->getVal( 'language' );
+			if( $lang && Language::isSupportedLanguage( $lang ) ) {
+				$currentTitle .= "/$lang";
+			}
+		}
 
 		// Allow for adding a custom group description by using
 		// "MediaWiki:Tp-custom-<group ID>".
@@ -175,7 +190,7 @@ class WikiPageMessageGroup extends WikiMessageGroup implements IDBAccessObject {
 			$customText = $msg->plain();
 		}
 
-		$msg = wfMessage( 'translate-tag-page-desc', $title, $target, $languageName, $pageLanguageCode );
+		$msg = wfMessage( 'translate-tag-page-desc', $title, $target, $languageName, $pageLanguageCode, $currentTitle );
 		self::addContext( $msg, $context );
 
 		return $msg->plain() . $customText;

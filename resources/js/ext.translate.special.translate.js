@@ -44,8 +44,9 @@
 				showMessage: null
 			};
 
-			// Force a URL change (no AJAX) until client-side language changing
-			// is stable enough. This doesn't do checks for some restrictions atm.
+			// @TODO now we force a URL change (no AJAX) until client-side language
+			// changing is stable enough. This doesn't do checks for some
+			// restrictions atm.
 			mw.translate.changeUrl( changes, true );
 		},
 
@@ -147,7 +148,17 @@
 		mw.translate.recentGroups.append( state.group );
 
 		mw.translate.getMessageGroup( state.group, props ).done( function ( group ) {
-			updateDescription( group );
+
+			// Considerations about the commented client-side description update:
+			// 1. We were updating the description even on startup. Now we avoid AJAX
+			//    calls for overwriting a description without applying any difference.
+			// 2. Note that actually on language change we simply move to a new document
+			//    location. This means that there is no need for client-side updates.
+			//
+			// @TODO: leave commented the next line «until client-side language changing
+			// is stable enough». Then refactor the 'translate-tag-page-desc' i18n.
+			//updateDescription( group, state.language );
+
 			updateGroupWarning( group, state.language );
 		} );
 	}
